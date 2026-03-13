@@ -19,6 +19,15 @@ export type Ingredient = {
 
 // --- Tables ---
 
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  displayName: varchar("display_name", { length: 255 }).notNull(),
+  role: varchar("role", { length: 50 }).notNull().default("member"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const recipes = pgTable("recipes", {
   id: serial("id").primaryKey(),
   title: varchar("title", { length: 500 }).notNull(),

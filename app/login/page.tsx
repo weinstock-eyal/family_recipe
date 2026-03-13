@@ -2,11 +2,22 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { CookingPot, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [familyCode, setFamilyCode] = useState("");
-  const [displayName, setDisplayName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -19,7 +30,7 @@ export default function LoginPage() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ familyCode, displayName }),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
@@ -40,58 +51,75 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="w-full max-w-sm space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold">מתכונים משפחתיים</h1>
-          <p className="text-muted-foreground">
-            הכניסו את הקוד המשפחתי כדי להיכנס
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label htmlFor="displayName" className="text-sm font-medium">
-              השם שלך
-            </label>
-            <input
-              id="displayName"
-              type="text"
-              required
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="לדוגמה: אמא, יעל, סבתא רחל"
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            />
+      <Card className="w-full max-w-sm shadow-sm">
+        <CardHeader className="text-center space-y-4">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+            <CookingPot className="h-7 w-7 text-primary" />
           </div>
+          <CardTitle className="text-2xl font-bold">מתכונים משפחתיים</CardTitle>
+          <CardDescription className="text-base">
+            היכנסו כדי לגשת למתכוני המשפחה
+          </CardDescription>
+        </CardHeader>
 
-          <div className="space-y-2">
-            <label htmlFor="familyCode" className="text-sm font-medium">
-              קוד משפחתי
-            </label>
-            <input
-              id="familyCode"
-              type="password"
-              required
-              value={familyCode}
-              onChange={(e) => setFamilyCode(e.target.value)}
-              placeholder="הקוד המשותף של המשפחה"
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            />
-          </div>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="font-semibold">אימייל</Label>
+              <Input
+                id="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="כתובת אימייל"
+                dir="ltr"
+                className="text-left"
+              />
+            </div>
 
-          {error && (
-            <p className="text-sm text-destructive text-center">{error}</p>
-          )}
+            <div className="space-y-2">
+              <Label htmlFor="password" className="font-semibold">סיסמה</Label>
+              <Input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="הסיסמה שלך"
+                dir="ltr"
+                className="text-left"
+              />
+            </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? "מתחבר..." : "כניסה"}
-          </button>
-        </form>
-      </div>
+            {error && (
+              <p className="text-sm text-destructive text-center">{error}</p>
+            )}
+
+            <Button type="submit" disabled={loading} className="w-full" size="lg">
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  מתחבר...
+                </>
+              ) : (
+                "כניסה"
+              )}
+            </Button>
+
+            <div className="text-center">
+              <Button
+                type="button"
+                variant="link"
+                disabled
+                className="text-sm text-muted-foreground"
+              >
+                שכחתי סיסמה
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

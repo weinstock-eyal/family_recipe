@@ -2,6 +2,12 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Documentation-First Rule
+
+**ALWAYS** consult the relevant rules file in the `/rules` directory before generating any code. The rules contain binding coding standards and conventions for this project. If a rules file covers the area you are working on (e.g., `rules/ui.md` for UI work), you must read it first and follow its rules exactly. The rules file are:
+- 'ui.md'
+- 'data-fetching.md' 
+
 ## Project Overview
 
 Family Recipe ("מתכונים משפחתיים") — a private, Hebrew-language (RTL) web app for sharing family recipes. Core design principle: **zero-friction input** for older users (snap a photo, add a title, save). Recipes can be image-only or fully structured with ingredients.

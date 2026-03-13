@@ -1,13 +1,43 @@
 import "dotenv/config";
 import { drizzle } from "drizzle-orm/postgres-js";
-import { recipes, familyNotes } from "./schema";
+import bcrypt from "bcryptjs";
+import { users, recipes, familyNotes } from "./schema";
 
 const db = drizzle(process.env.DATABASE_URL!);
 
 async function seed() {
   console.log("Seeding database...");
 
-  // Insert recipes and get their IDs
+  // --- Seed Users ---
+  const passwordHash = await bcrypt.hash("123456", 12);
+
+  const insertedUsers = await db
+    .insert(users)
+    .values([
+      {
+        email: "eyal@example.com",
+        passwordHash,
+        displayName: "אייל",
+        role: "admin",
+      },
+      {
+        email: "mama@family.com",
+        passwordHash,
+        displayName: "אמא",
+        role: "member",
+      },
+      {
+        email: "yael@family.com",
+        passwordHash,
+        displayName: "יעל",
+        role: "member",
+      },
+    ])
+    .returning({ id: users.id, displayName: users.displayName });
+
+  console.log("Inserted users:", insertedUsers);
+
+  // --- Seed Recipes ---
   const insertedRecipes = await db
     .insert(recipes)
     .values([
@@ -107,7 +137,7 @@ async function seed() {
     insertedRecipes.map((r) => [r.title, r.id])
   );
 
-  // Insert family notes
+  // --- Seed Family Notes ---
   const insertedNotes = await db
     .insert(familyNotes)
     .values([
