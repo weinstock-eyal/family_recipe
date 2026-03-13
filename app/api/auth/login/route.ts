@@ -1,24 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSession, validateFamilyCode } from "@/src/lib/auth";
+import { authenticateUser, createSession } from "@/src/lib/auth";
 
 export async function POST(request: NextRequest) {
-  const { familyCode, displayName } = await request.json();
+  const { email, password } = await request.json();
 
-  if (!familyCode || !displayName) {
+  if (!email || !password) {
     return NextResponse.json(
       { error: "יש למלא את כל השדות" },
       { status: 400 }
     );
   }
 
-  if (!validateFamilyCode(familyCode)) {
+  const user = await authenticateUser(email, password);
+
+  if (!user) {
     return NextResponse.json(
-      { error: "קוד משפחתי שגוי" },
+      { error: "אימייל או סיסמה שגויים" },
       { status: 401 }
     );
   }
 
-  await createSession(displayName.trim());
+  await createSession({
+    id: user.id,
+    displayName: user.displayName,
+    role: user.role,
+  });
 
   return NextResponse.json({ success: true });
 }
