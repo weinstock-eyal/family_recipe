@@ -31,6 +31,8 @@ function setStoredReaction(recipeId: number, reaction: Reaction) {
 
 export function LikeButtons({ recipeId, likes, dislikes }: Props) {
   const [reaction, setReaction] = useState<Reaction>(null);
+  const [likesCount, setLikesCount] = useState(likes);
+  const [dislikesCount, setDislikesCount] = useState(dislikes);
 
   useEffect(() => {
     setReaction(getStoredReaction(recipeId));
@@ -40,7 +42,12 @@ export function LikeButtons({ recipeId, likes, dislikes }: Props) {
     const currentReaction = reaction;
     const newReaction = currentReaction === type ? null : type;
 
-    // Optimistic update
+    // Optimistic count updates
+    if (currentReaction === "like") setLikesCount((c) => c - 1);
+    if (currentReaction === "dislike") setDislikesCount((c) => c - 1);
+    if (newReaction === "like") setLikesCount((c) => c + 1);
+    if (newReaction === "dislike") setDislikesCount((c) => c + 1);
+
     setReaction(newReaction);
     setStoredReaction(recipeId, newReaction);
 
@@ -57,6 +64,7 @@ export function LikeButtons({ recipeId, likes, dislikes }: Props) {
         onClick={() => handleClick("like")}
       >
         <ThumbsUp className="size-5" />
+        {likesCount}
       </Button>
       <Button
         variant={reaction === "dislike" ? "default" : "ghost"}
@@ -64,6 +72,7 @@ export function LikeButtons({ recipeId, likes, dislikes }: Props) {
         onClick={() => handleClick("dislike")}
       >
         <ThumbsDown className="size-5" />
+        {dislikesCount}
       </Button>
     </div>
   );

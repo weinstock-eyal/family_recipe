@@ -56,8 +56,9 @@ test.describe("Home Page", () => {
 
   test("search filters recipes with debounce", async ({ page }) => {
     await page.goto("/");
+    await page.waitForLoadState("networkidle");
 
-    await page.getByPlaceholder("חיפוש מתכונים...").fill("חומוס");
+    await page.getByPlaceholder("חיפוש לפי שם, מרכיב, תגית או הערה...").fill("חומוס");
 
     // Wait for URL to update after debounce
     await expect(page).toHaveURL(/\?q=/);
@@ -74,7 +75,7 @@ test.describe("Home Page", () => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
-    await page.getByPlaceholder("חיפוש מתכונים...").fill("פיצה");
+    await page.getByPlaceholder("חיפוש לפי שם, מרכיב, תגית או הערה...").fill("פיצה");
     await expect(page).toHaveURL(/\?q=/);
 
     await expect(page.getByText("לא נמצאו מתכונים")).toBeVisible();

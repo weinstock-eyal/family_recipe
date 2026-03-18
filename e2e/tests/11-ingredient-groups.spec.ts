@@ -5,7 +5,7 @@ test.describe("Ingredient Groups", () => {
     await page.goto("/recipes/new");
 
     // Fill title
-    await page.getByLabel("שם המתכון *").fill("מתכון בדיקה - קבוצה אחת");
+    await page.getByPlaceholder("למשל: עוגת שוקולד של סבתא").fill("מתכון בדיקה - קבוצה אחת");
 
     // Open ingredients
     await page.getByText("מרכיבים (אופציונלי)").click();
@@ -16,7 +16,7 @@ test.describe("Ingredient Groups", () => {
     await page.getByPlaceholder("שם המרכיב").first().fill("קמח");
 
     // Submit
-    await page.getByRole("button", { name: "שמור מתכון" }).click();
+    await page.getByRole("button", { name: "שמירת מתכון" }).click();
     await expect(page).toHaveURL(/\/recipes\/\d+/);
 
     // Should show ingredients heading without group name
@@ -27,7 +27,7 @@ test.describe("Ingredient Groups", () => {
   test("create recipe with two named groups", async ({ page }) => {
     await page.goto("/recipes/new");
 
-    await page.getByLabel("שם המתכון *").fill("עוגת שוקולד עם ציפוי");
+    await page.getByPlaceholder("למשל: עוגת שוקולד של סבתא").fill("עוגת שוקולד עם ציפוי");
 
     // Open ingredients
     await page.getByText("מרכיבים (אופציונלי)").click();
@@ -52,7 +52,7 @@ test.describe("Ingredient Groups", () => {
     await page.getByPlaceholder("יחידה").nth(1).fill("גרם");
 
     // Submit
-    await page.getByRole("button", { name: "שמור מתכון" }).click();
+    await page.getByRole("button", { name: "שמירת מתכון" }).click();
     await expect(page).toHaveURL(/\/recipes\/\d+/);
 
     // Should show both group names

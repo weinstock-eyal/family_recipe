@@ -47,10 +47,11 @@ test.describe("Authentication", () => {
 
   test("loading state during login", async ({ page }) => {
     await page.goto("/login");
+    await page.waitForLoadState("networkidle");
 
     // Slow down the login API so we can observe loading state
     await page.route("**/api/auth/login", async (route) => {
-      await new Promise((r) => setTimeout(r, 1000));
+      await new Promise((r) => setTimeout(r, 5000));
       await route.continue();
     });
 
@@ -58,8 +59,8 @@ test.describe("Authentication", () => {
     await page.getByLabel("סיסמה").fill(USERS.mama.password);
     await page.getByRole("button", { name: "כניסה" }).click();
 
-    // Loading text should appear
-    await expect(page.getByText("מתחבר...")).toBeVisible();
+    // Loading text should appear while request is delayed
+    await expect(page.getByText("מתחבר...")).toBeVisible({ timeout: 5000 });
   });
 
   test("unauthenticated user redirected to /login", async ({ page }) => {

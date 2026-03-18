@@ -5,7 +5,7 @@ test.describe("Enhanced Search", () => {
     await page.goto("/");
 
     await page.getByPlaceholder("חיפוש לפי שם, מרכיב, תגית או הערה...").fill("חומוס");
-    await page.waitForURL(/\?q=.*חומוס/);
+    await expect(page).toHaveURL(/\?q=.*חומוס/);
 
     await expect(page.getByText("חומוס הבית")).toBeVisible();
   });
@@ -14,7 +14,7 @@ test.describe("Enhanced Search", () => {
     await page.goto("/");
 
     await page.getByPlaceholder("חיפוש לפי שם, מרכיב, תגית או הערה...").fill("טחינה");
-    await page.waitForURL(/\?q=.*טחינה/);
+    await expect(page).toHaveURL(/\?q=.*טחינה/);
 
     // "חומוס הבית" contains טחינה in its ingredients
     await expect(page.getByText("חומוס הבית")).toBeVisible();
@@ -24,7 +24,7 @@ test.describe("Enhanced Search", () => {
     await page.goto("/");
 
     await page.getByPlaceholder("חיפוש לפי שם, מרכיב, תגית או הערה...").fill("טבעוני");
-    await page.waitForURL(/\?q=.*טבעוני/);
+    await expect(page).toHaveURL(/\?q=.*טבעוני/);
 
     // "חומוס הבית" has tag "טבעוני"
     await expect(page.getByText("חומוס הבית")).toBeVisible();
@@ -34,7 +34,7 @@ test.describe("Enhanced Search", () => {
     await page.goto("/");
 
     await page.getByPlaceholder("חיפוש לפי שם, מרכיב, תגית או הערה...").fill("כמון");
-    await page.waitForURL(/\?q=.*כמון/);
+    await expect(page).toHaveURL(/\?q=.*כמון/);
 
     // "חומוס הבית" has a note mentioning כמון
     await expect(page.getByText("חומוס הבית")).toBeVisible();
@@ -44,7 +44,7 @@ test.describe("Enhanced Search", () => {
     await page.goto("/");
 
     await page.getByPlaceholder("חיפוש לפי שם, מרכיב, תגית או הערה...").fill("פיצה");
-    await page.waitForURL(/\?q=.*פיצה/);
+    await expect(page).toHaveURL(/\?q=.*פיצה/);
 
     await expect(page.getByText("לא נמצאו מתכונים")).toBeVisible();
   });

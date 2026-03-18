@@ -8,6 +8,7 @@ async function createOwnRecipe(page: import("@playwright/test").Page, title: str
   await page.getByPlaceholder("למשל: עוגת שוקולד של סבתא").fill(title);
   await page.getByRole("button", { name: "שמירת מתכון" }).click();
   await expect(page).toHaveURL(/\/recipes\/\d+/);
+  await page.waitForLoadState("networkidle");
 }
 
 test.describe("Recipe Editing", () => {

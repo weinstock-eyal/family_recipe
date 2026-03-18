@@ -4,7 +4,7 @@ test.describe("Instruction Sections", () => {
   test("create recipe with single unnamed section shows plain numbered list", async ({ page }) => {
     await page.goto("/recipes/new");
 
-    await page.getByLabel("שם המתכון *").fill("מתכון בדיקה - הוראות");
+    await page.getByPlaceholder("למשל: עוגת שוקולד של סבתא").fill("מתכון בדיקה - הוראות");
 
     // Open instructions
     await page.getByText("הוראות הכנה (אופציונלי)").click();
@@ -16,7 +16,7 @@ test.describe("Instruction Sections", () => {
     await page.getByPlaceholder("שלב 2").fill("לערבב את כל החומרים");
 
     // Submit
-    await page.getByRole("button", { name: "שמור מתכון" }).click();
+    await page.getByRole("button", { name: "שמירת מתכון" }).click();
     await expect(page).toHaveURL(/\/recipes\/\d+/);
 
     // Should show instructions
@@ -28,7 +28,7 @@ test.describe("Instruction Sections", () => {
   test("create recipe with two named sections", async ({ page }) => {
     await page.goto("/recipes/new");
 
-    await page.getByLabel("שם המתכון *").fill("קציצות ברוטב");
+    await page.getByPlaceholder("למשל: עוגת שוקולד של סבתא").fill("קציצות ברוטב");
 
     // Open instructions
     await page.getByText("הוראות הכנה (אופציונלי)").click();
@@ -48,7 +48,7 @@ test.describe("Instruction Sections", () => {
     await page.getByPlaceholder("שלב 1").nth(1).fill("לחמם שמן במחבת");
 
     // Submit
-    await page.getByRole("button", { name: "שמור מתכון" }).click();
+    await page.getByRole("button", { name: "שמירת מתכון" }).click();
     await expect(page).toHaveURL(/\/recipes\/\d+/);
 
     // Should show section headings
