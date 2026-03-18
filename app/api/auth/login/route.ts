@@ -20,10 +20,18 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  if (!user.isActive) {
+    return NextResponse.json(
+      { error: "החשבון שלך הושבת. פנה למנהל המערכת." },
+      { status: 403 }
+    );
+  }
+
   await createSession({
     id: user.id,
     displayName: user.displayName,
     role: user.role,
+    isActive: user.isActive,
   });
 
   return NextResponse.json({ success: true });

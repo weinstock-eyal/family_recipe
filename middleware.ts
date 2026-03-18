@@ -28,7 +28,20 @@ export async function middleware(request: NextRequest) {
 
   try {
     const secret = new TextEncoder().encode(process.env.SESSION_SECRET);
-    await jwtVerify(token, secret);
+    const { payload } = await jwtVerify(token, secret);
+
+    // Block inactive users
+    if (payload.isActive === 0) {
+      const response = NextResponse.redirect(new URL("/login", request.url));
+      response.cookies.delete("family_session");
+      return response;
+    }
+
+    // Admin-only routes
+    if (pathname.startsWith("/admin") && payload.role !== "admin") {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+
     return NextResponse.next();
   } catch {
     return NextResponse.redirect(new URL("/login", request.url));

@@ -43,11 +43,13 @@ export async function createSession(user: {
   id: number;
   displayName: string;
   role: string;
+  isActive: number;
 }) {
   const token = await new SignJWT({
     userId: user.id,
     displayName: user.displayName,
     role: user.role,
+    isActive: user.isActive,
   })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
@@ -68,6 +70,7 @@ export async function verifySession(): Promise<{
   userId: number;
   displayName: string;
   role: string;
+  isActive: number;
 } | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get(COOKIE_NAME)?.value;
@@ -79,10 +82,24 @@ export async function verifySession(): Promise<{
       userId: payload.userId as number,
       displayName: payload.displayName as string,
       role: payload.role as string,
+      isActive: (payload.isActive as number) ?? 1,
     };
   } catch {
     return null;
   }
+}
+
+export async function requireAdmin(): Promise<{
+  userId: number;
+  displayName: string;
+  role: string;
+  isActive: number;
+}> {
+  const session = await verifySession();
+  if (!session || session.role !== "admin") {
+    throw new Error("אין לך הרשאה לגשת לעמוד זה");
+  }
+  return session;
 }
 
 export async function getDisplayName(): Promise<string> {

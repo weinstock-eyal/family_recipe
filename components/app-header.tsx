@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CookingPot, Home, ShoppingCart } from "lucide-react";
+import { CookingPot, Home, ShoppingCart, Users } from "lucide-react";
 import { verifySession } from "@/src/lib/auth";
 import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -34,6 +34,15 @@ export async function AppHeader() {
               <ShoppingCart className="size-4" />
               רשימת קניות
             </Link>
+            {session.role === "admin" && (
+              <Link
+                href="/admin/users"
+                className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <Users className="size-4" />
+                ניהול משתמשים
+              </Link>
+            )}
           </nav>
         </div>
 

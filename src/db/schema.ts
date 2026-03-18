@@ -35,6 +35,7 @@ export const users = pgTable("users", {
   passwordHash: text("password_hash").notNull(),
   displayName: varchar("display_name", { length: 255 }).notNull(),
   role: varchar("role", { length: 50 }).notNull().default("member"),
+  isActive: integer("is_active").default(1).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

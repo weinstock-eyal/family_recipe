@@ -76,7 +76,15 @@ if (result.data.uploadedBy !== currentUser) {
 ## 5. Role System
 
 - The `users.role` field exists (default: `"member"`) and is included in the JWT payload.
-- Currently unused — expand this section when role-based permissions are needed.
+- `users.isActive` field (default: `1`) controls account activation status. Included in JWT payload.
+- Two roles: `"admin"` and `"member"`.
+- Admin-only routes live under `/admin/*` and are protected at three layers:
+  1. **Middleware** — checks `payload.role === "admin"`, redirects non-admins to `/`.
+  2. **Admin layout** (`app/admin/layout.tsx`) — defense-in-depth role check via `verifySession()`.
+  3. **Server Actions** — every admin action calls `requireAdmin()` which throws if not admin.
+- Inactive users (`isActive === 0`) are blocked at middleware level (cookie deleted, redirect to `/login`) and at login time.
+- Use `requireAdmin()` from `src/lib/auth.ts` in all admin Server Actions.
+- Admin cannot self-demote (remove own admin role), self-deactivate, or self-delete.
 
 ---
 
