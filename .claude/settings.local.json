@@ -3,7 +3,19 @@
     "allow": [
       "Bash(npm install:*)",
       "Bash(npx drizzle-kit:*)",
-      "Bash(node -e \"require\\(''dotenv''\\).config\\(\\); const url = new URL\\(process.env.DATABASE_URL\\); console.log\\(''host:'', url.hostname\\); console.log\\(''port:'', url.port\\); console.log\\(''user:'', url.username\\); console.log\\(''pass:'', url.password\\); console.log\\(''db:'', url.pathname\\);\")"
+      "Bash(node -e \"require\\(''dotenv''\\).config\\(\\); const url = new URL\\(process.env.DATABASE_URL\\); console.log\\(''host:'', url.hostname\\); console.log\\(''port:'', url.port\\); console.log\\(''user:'', url.username\\); console.log\\(''pass:'', url.password\\); console.log\\(''db:'', url.pathname\\);\")",
+      "Bash(git merge:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(git checkout:*)",
+      "Bash(npx shadcn@latest add badge -y)",
+      "Bash(npx shadcn@latest add dialog textarea -y)",
+      "Bash(npx shadcn@latest add checkbox -y)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/login)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\eyalw\\ClaudeProjects\\family_recipe\\app\\recipes",
+      "c:\\Users\\eyalw\\ClaudeProjects\\family_recipe\\app\\recipes\\[id]"
     ]
   }
 }

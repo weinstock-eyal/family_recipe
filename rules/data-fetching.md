@@ -1,4 +1,4 @@
-# Data Fetching & Mutation Standards
+# Data Fetching Standards (Reads Only)
 
 ## 1. Data Fetching (Reads)
 
@@ -24,27 +24,7 @@ Always use **Drizzle ORM** to query the database.
 - **ABSOLUTELY DO NOT** use raw SQL strings, `sql`-tagged templates for full queries, or any other ORM/query builder.
 - Use Drizzle's query builder API (`db.select()`, `db.query.*`) for all reads.
 
-## 2. Data Mutations (Writes)
-
-### Server Actions
-
-All data mutations (create, update, delete) must be handled exclusively via **Server Actions** (`"use server"`) placed in the **`/actions`** directory (e.g., `src/actions/recipes.ts`).
-
-- **DO NOT** mutate data via Route Handlers, client-side fetches, or inline server functions.
-- Server Actions must validate input before writing to the database.
-
-### Cache Revalidation
-
-After any successful Server Action that mutates data, you **MUST** call `revalidatePath` (or `revalidateTag` where appropriate) to clear the cache and ensure the UI reflects the latest state.
-
-```ts
-import { revalidatePath } from "next/cache";
-
-// After a successful mutation:
-revalidatePath("/recipes");
-```
-
-## 3. Performance & Optimization
+## 2. Performance & Optimization
 
 ### Pagination & Limits
 
@@ -61,38 +41,3 @@ When fetching lists with related data, use Drizzle's **relational queries** (`db
 - **DO NOT** loop over a list and execute a query per item.
 - Prefer `with: { ... }` for straightforward relations and `innerJoin`/`leftJoin` for complex filtering.
 
-### Optimistic UI
-
-For small, frequent user interactions (toggling a status, liking, adding to grocery list), implement **optimistic updates** using React's `useOptimistic` hook.
-
-- Update the UI immediately before awaiting the Server Action response.
-- Roll back the optimistic state if the action returns an error.
-
-## 4. Stability & Reliability
-
-### Database Transactions
-
-When a mutation writes to **multiple tables**, it **MUST** be wrapped in a Drizzle `db.transaction()` call to ensure all-or-nothing atomicity.
-
-```ts
-await db.transaction(async (tx) => {
-  await tx.insert(recipes).values(recipeData);
-  await tx.insert(ingredients).values(ingredientRows);
-});
-```
-
-- If any step inside the transaction throws, the entire operation rolls back automatically.
-
-### Strict Error Handling
-
-All data helpers and Server Actions must be wrapped in `try/catch` blocks and return a **standardized result object**.
-
-```ts
-type ActionResult<T> =
-  | { success: true; data: T }
-  | { success: false; error: string };
-```
-
-- On success: return `{ success: true, data: ... }`.
-- On failure: catch the error, log it server-side, and return `{ success: false, error: "הודעת שגיאה למשתמש" }`.
-- **DO NOT** let unhandled database errors propagate to the client or crash the application.

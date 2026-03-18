@@ -1,12 +1,20 @@
 import "dotenv/config";
 import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import bcrypt from "bcryptjs";
-import { users, recipes, familyNotes } from "./schema";
+import { users, recipes, familyNotes, groceryListItems } from "./schema";
 
-const db = drizzle(process.env.DATABASE_URL!);
+const sql = postgres(process.env.DATABASE_URL!, { max: 1 });
+const db = drizzle(sql);
 
 async function seed() {
   console.log("Seeding database...");
+
+  // Clear existing data (order matters for foreign keys)
+  await db.delete(groceryListItems);
+  await db.delete(familyNotes);
+  await db.delete(recipes);
+  await db.delete(users);
 
   // --- Seed Users ---
   const passwordHash = await bcrypt.hash("123456", 12);
@@ -56,19 +64,27 @@ async function seed() {
         uploadedBy: "אבא",
         imageUrl: "https://placehold.co/800x600?text=Hummus",
         ingredients: [
-          { amount: "2", unit: "כוסות", item: "חומוס יבש" },
-          { amount: "1", unit: "כפית", item: "סודה לשתייה" },
-          { amount: "3", unit: "כפות", item: "טחינה גולמית" },
-          { amount: "1", unit: "יחידה", item: "לימון" },
-          { amount: "2", unit: "שיניים", item: "שום" },
-          { amount: "1", unit: "כפית", item: "מלח" },
+          {
+            items: [
+              { amount: "2", unit: "כוסות", item: "חומוס יבש" },
+              { amount: "1", unit: "כפית", item: "סודה לשתייה" },
+              { amount: "3", unit: "כפות", item: "טחינה גולמית" },
+              { amount: "1", unit: "יחידה", item: "לימון" },
+              { amount: "2", unit: "שיניים", item: "שום" },
+              { amount: "1", unit: "כפית", item: "מלח" },
+            ],
+          },
         ],
         instructions: [
-          "להשרות את החומוס למשך לילה שלם במים",
-          "לבשל עם סודה לשתייה עד שהחומוס מתרכך לגמרי (כשעה)",
-          "לסנן ולשטוף במים קרים",
-          "לטחון בבלנדר עם טחינה, לימון, שום ומלח",
-          "להוסיף מי בישול עד לקבלת מרקם חלק",
+          {
+            steps: [
+              "להשרות את החומוס למשך לילה שלם במים",
+              "לבשל עם סודה לשתייה עד שהחומוס מתרכך לגמרי (כשעה)",
+              "לסנן ולשטוף במים קרים",
+              "לטחון בבלנדר עם טחינה, לימון, שום ומלח",
+              "להוסיף מי בישול עד לקבלת מרקם חלק",
+            ],
+          },
         ],
         tags: ["טבעוני", "פרווה", "סלטים"],
         likes: 5,
@@ -89,19 +105,27 @@ async function seed() {
         uploadedBy: "סבתא מרים",
         sourceUrl: "https://www.10dakot.co.il/recipe/butter-cookies",
         ingredients: [
-          { amount: "200", unit: "גרם", item: "חמאה" },
-          { amount: "1", unit: "כוס", item: "סוכר" },
-          { amount: "1", unit: "יחידה", item: "ביצה" },
-          { amount: "3", unit: "כוסות", item: "קמח" },
-          { amount: "1", unit: "כפית", item: "תמצית וניל" },
+          {
+            items: [
+              { amount: "200", unit: "גרם", item: "חמאה" },
+              { amount: "1", unit: "כוס", item: "סוכר" },
+              { amount: "1", unit: "יחידה", item: "ביצה" },
+              { amount: "3", unit: "כוסות", item: "קמח" },
+              { amount: "1", unit: "כפית", item: "תמצית וניל" },
+            ],
+          },
         ],
         instructions: [
-          "לערבב חמאה רכה עם סוכר עד לקבלת קרם",
-          "להוסיף ביצה ווניל ולערבב",
-          "להוסיף קמח בהדרגה עד לקבלת בצק אחיד",
-          "לצנן במקרר חצי שעה",
-          "לרדד ולחתוך צורות",
-          "לאפות ב-180 מעלות כ-12 דקות",
+          {
+            steps: [
+              "לערבב חמאה רכה עם סוכר עד לקבלת קרם",
+              "להוסיף ביצה ווניל ולערבב",
+              "להוסיף קמח בהדרגה עד לקבלת בצק אחיד",
+              "לצנן במקרר חצי שעה",
+              "לרדד ולחתוך צורות",
+              "לאפות ב-180 מעלות כ-12 דקות",
+            ],
+          },
         ],
         tags: ["קינוחים", "חלבי", "אפייה"],
         likes: 4,
@@ -111,17 +135,25 @@ async function seed() {
         title: "תה נענע של אמא",
         uploadedBy: "אמא",
         ingredients: [
-          { amount: "4", unit: "כוסות", item: "מים רותחים" },
-          { amount: "2", unit: "כפיות", item: "עלי תה שחור" },
-          { amount: "1", unit: "חבילה", item: "נענע טרייה" },
-          { amount: "3", unit: "כפות", item: "סוכר" },
+          {
+            items: [
+              { amount: "4", unit: "כוסות", item: "מים רותחים" },
+              { amount: "2", unit: "כפיות", item: "עלי תה שחור" },
+              { amount: "1", unit: "חבילה", item: "נענע טרייה" },
+              { amount: "3", unit: "כפות", item: "סוכר" },
+            ],
+          },
         ],
         instructions: [
-          "להרתיח מים",
-          "להוסיף עלי תה ולחכות דקה",
-          "להוסיף ענפי נענע ולערבב",
-          "להוסיף סוכר לפי הטעם",
-          "לתת לחלוט 3 דקות ולהגיש",
+          {
+            steps: [
+              "להרתיח מים",
+              "להוסיף עלי תה ולחכות דקה",
+              "להוסיף ענפי נענע ולערבב",
+              "להוסיף סוכר לפי הטעם",
+              "לתת לחלוט 3 דקות ולהגיש",
+            ],
+          },
         ],
         tags: ["משקאות", "פרווה"],
         likes: 2,
@@ -177,10 +209,12 @@ async function seed() {
   console.log("Inserted family notes:", insertedNotes);
   console.log("Seeding complete!");
 
+  await sql.end();
   process.exit(0);
 }
 
-seed().catch((err) => {
+seed().catch(async (err) => {
   console.error("Seed failed:", err);
+  await sql.end();
   process.exit(1);
 });

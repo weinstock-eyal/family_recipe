@@ -6,7 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **ALWAYS** consult the relevant rules file in the `/rules` directory before generating any code. The rules contain binding coding standards and conventions for this project. If a rules file covers the area you are working on (e.g., `rules/ui.md` for UI work), you must read it first and follow its rules exactly. The rules file are:
 - 'ui.md'
-- 'data-fetching.md' 
+- 'data-fetching.md'
+- 'data-mutations.md'
+- 'authorization.md'
+- 'git-workflow.md'
+- 'server-components.md'
 
 ## Project Overview
 
@@ -27,7 +31,7 @@ npx tsx src/db/seed.ts # Seed database with example data
 - **Framework**: Next.js 16 (App Router), React 19, TypeScript 5
 - **Database**: PostgreSQL (Supabase-hosted) + Drizzle ORM
 - **Styling**: Tailwind CSS 4 + shadcn/ui (base-nova style, `@base-ui/react`)
-- **Auth**: JWT via `jose`, httpOnly cookie (`family_session`), shared family code
+- **Auth**: JWT via `jose`, httpOnly cookie (`family_session`), email/password login
 - **Icons**: lucide-react
 
 ## Architecture
@@ -38,10 +42,10 @@ npx tsx src/db/seed.ts # Seed database with example data
 - `seed.ts` — Populates tables with 5 Hebrew example recipes and notes.
 
 ### Auth (`src/lib/auth.ts` + `middleware.ts`)
-- `createSession(displayName)` / `verifySession()` / `getDisplayName()` / `destroySession()` — JWT-based session in httpOnly cookie.
-- `validateFamilyCode(code)` — Checks against `FAMILY_CODE` env var.
+- `authenticateUser(email, password)` / `createSession(user)` / `verifySession()` / `getDisplayName()` / `destroySession()` — JWT-based session in httpOnly cookie.
 - `middleware.ts` — Protects all routes except `/login` and `/api/auth/login`. Redirects unauthenticated users.
 - Login endpoint: `app/api/auth/login/route.ts` (POST).
+- Full authorization rules: see `rules/authorization.md`.
 
 ### Conditional UI Logic (Critical)
 - If `recipe.ingredients?.length > 0` → show quantity multiplier (x0.5, x1, x2) and "Add to Grocery List" button.
@@ -54,7 +58,6 @@ npx tsx src/db/seed.ts # Seed database with example data
 
 ```
 DATABASE_URL     # Supabase PostgreSQL connection string (?sslmode=require required)
-FAMILY_CODE      # Shared family login code
 SESSION_SECRET   # JWT signing secret
 ```
 
@@ -62,6 +65,6 @@ SESSION_SECRET   # JWT signing secret
 
 - **Language**: All UI text, labels, placeholders, and error messages in Hebrew.
 - **RTL**: Root `<html lang="he" dir="rtl">` with Heebo font. Tailwind handles most RTL automatically.
-- **Data mutations**: Use Next.js Server Actions (`src/actions/`). API Routes only for auth and file uploads.
+- **Data mutations**: Use Next.js Server Actions in colocated `actions.ts` files (see `rules/data-mutations.md`). API Routes only for auth and file uploads.
 - **Component library**: shadcn/ui components in `components/ui/`. Use `cn()` from `src/lib/utils.ts` for class merging.
-- **`uploaded_by` field**: A display name string (e.g., "אמא", "יעל"), not a numeric user ID.
+- **`uploaded_by` field**: A display name string (e.g., "אמא", "יעל"), not a numeric user ID. See `rules/authorization.md` for ownership model.

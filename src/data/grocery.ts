@@ -1,6 +1,7 @@
 import { db } from "@/src/db";
 import { groceryListItems, recipes } from "@/src/db/schema";
-import { eq, and, desc } from "drizzle-orm";
+import type { Ingredient } from "@/src/db/schema";
+import { eq, and, desc, isNull } from "drizzle-orm";
 
 const DEFAULT_PAGE_SIZE = 20;
 
@@ -28,7 +29,7 @@ export async function getGroceryItems({
       })
       .from(groceryListItems)
       .leftJoin(recipes, eq(groceryListItems.recipeId, recipes.id))
-      .where(eq(groceryListItems.sessionId, sessionId))
+      .where(and(eq(groceryListItems.sessionId, sessionId), isNull(groceryListItems.deletedAt)))
       .orderBy(desc(groceryListItems.createdAt))
       .limit(limit)
       .offset(offset);
@@ -57,7 +58,8 @@ export async function getGroceryItemsByRecipe({
       .where(
         and(
           eq(groceryListItems.sessionId, sessionId),
-          eq(groceryListItems.recipeId, recipeId)
+          eq(groceryListItems.recipeId, recipeId),
+          isNull(groceryListItems.deletedAt)
         )
       )
       .orderBy(desc(groceryListItems.createdAt));
@@ -70,4 +72,52 @@ export async function getGroceryItemsByRecipe({
       error: "שגיאה בטעינת פריטי הקניות למתכון",
     };
   }
+}
+
+// --- Mutation Helpers ---
+
+export async function insertGroceryItems(
+  rows: {
+    sessionId: string;
+    recipeId: number;
+    item: string;
+    amount: string | null;
+    unit: string | null;
+  }[]
+) {
+  await db.insert(groceryListItems).values(rows);
+}
+
+export async function getGroceryItemById(id: number) {
+  const [item] = await db
+    .select()
+    .from(groceryListItems)
+    .where(and(eq(groceryListItems.id, id), isNull(groceryListItems.deletedAt)))
+    .limit(1);
+  return item ?? null;
+}
+
+export async function updateGroceryItemChecked(id: number, checked: number) {
+  const [updated] = await db
+    .update(groceryListItems)
+    .set({ checked })
+    .where(eq(groceryListItems.id, id))
+    .returning();
+  return updated ?? null;
+}
+
+export async function softDeleteGroceryItem(id: number) {
+  const [updated] = await db
+    .update(groceryListItems)
+    .set({ deletedAt: new Date() })
+    .where(eq(groceryListItems.id, id))
+    .returning({ id: groceryListItems.id });
+  return updated ?? null;
+}
+
+export async function softDeleteGroceryListBySession(sessionId: string) {
+  await db
+    .update(groceryListItems)
+    .set({ deletedAt: new Date() })
+    .where(and(eq(groceryListItems.sessionId, sessionId), isNull(groceryListItems.deletedAt)));
 }
