@@ -29,7 +29,7 @@ export default defineConfig({
     {
       name: "eyal-user",
       use: { storageState: "./e2e/.auth/eyal.json" },
-      testMatch: "**/{06-recipe-edit,authorization}.spec.ts",
+      testMatch: "**/{06-recipe-edit,authorization,15-family-groups}.spec.ts",
     },
   ],
   webServer: {

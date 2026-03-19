@@ -2,7 +2,21 @@ import "dotenv/config";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import bcrypt from "bcryptjs";
-import { users, recipes, familyNotes, groceryListItems } from "./schema";
+import {
+  users,
+  recipes,
+  familyNotes,
+  groceryListItems,
+  familyGroups,
+  familyGroupMembers,
+  recipeGroupShares,
+  groupInvitations,
+} from "./schema";
+
+if (process.env.NODE_ENV === "production") {
+  console.error("ERROR: Seed script cannot run in production!");
+  process.exit(1);
+}
 
 const sql = postgres(process.env.DATABASE_URL!, { max: 1 });
 const db = drizzle(sql);
@@ -12,8 +26,12 @@ async function seed() {
 
   // Clear existing data (order matters for foreign keys)
   await db.delete(groceryListItems);
+  await db.delete(groupInvitations);
+  await db.delete(recipeGroupShares);
+  await db.delete(familyGroupMembers);
   await db.delete(familyNotes);
   await db.delete(recipes);
+  await db.delete(familyGroups);
   await db.delete(users);
 
   // --- Seed Users ---
@@ -23,7 +41,7 @@ async function seed() {
     .insert(users)
     .values([
       {
-        email: "eyal@example.com",
+        email: "weinstockey@gmail.com",
         passwordHash,
         displayName: "אייל",
         role: "admin",
@@ -207,6 +225,43 @@ async function seed() {
     .returning({ id: familyNotes.id });
 
   console.log("Inserted family notes:", insertedNotes);
+
+  // --- Seed Family Groups ---
+  const userMap = Object.fromEntries(
+    insertedUsers.map((u) => [u.displayName, u.id])
+  );
+
+  const insertedGroups = await db
+    .insert(familyGroups)
+    .values([
+      { name: "המשפחה", createdById: userMap["אייל"] },
+    ])
+    .returning({ id: familyGroups.id, name: familyGroups.name });
+
+  console.log("Inserted groups:", insertedGroups);
+
+  const defaultGroupId = insertedGroups[0].id;
+
+  // Add all users as members of the default group
+  await db.insert(familyGroupMembers).values(
+    insertedUsers.map((u) => ({
+      groupId: defaultGroupId,
+      userId: u.id,
+      role: u.displayName === "אייל" ? "admin" : "member",
+    }))
+  );
+
+  console.log("Added all users to default group");
+
+  // Share all recipes with the default group
+  await db.insert(recipeGroupShares).values(
+    insertedRecipes.map((r) => ({
+      recipeId: r.id,
+      groupId: defaultGroupId,
+    }))
+  );
+
+  console.log("Shared all recipes with default group");
   console.log("Seeding complete!");
 
   await sql.end();

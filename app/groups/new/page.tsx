@@ -1,8 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,31 +10,37 @@ import { createGroupAction } from "@/app/groups/actions";
 
 export default function NewGroupPage() {
   const router = useRouter();
+  const [error, setError] = useState("");
+  const [isPending, setIsPending] = useState(false);
 
-  const [state, action, isPending] = useActionState(
-    async (_prev: unknown, formData: FormData) => {
-      const name = formData.get("name") as string;
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError("");
+    setIsPending(true);
+
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get("name") as string;
+
+    try {
       const result = await createGroupAction({ name });
       if (result.success) {
-        return { success: true, groupId: result.data.id };
+        router.push(`/groups/${result.data.id}`);
+        return;
       }
-      return { success: false, error: result.error };
-    },
-    null
-  );
-
-  useEffect(() => {
-    if (state?.success && "groupId" in state) {
-      router.push(`/groups/${state.groupId}`);
+      setError(result.error);
+    } catch {
+      setError("שגיאה ביצירת הקבוצה");
+    } finally {
+      setIsPending(false);
     }
-  }, [state, router]);
+  }
 
   return (
     <div className="mx-auto max-w-md space-y-6">
       <h1 className="text-2xl font-bold">קבוצה חדשה</h1>
 
       <Card className="p-6">
-        <form action={action} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">שם הקבוצה</Label>
             <Input
@@ -49,8 +54,8 @@ export default function NewGroupPage() {
             />
           </div>
 
-          {state && !state.success && "error" in state && (
-            <p className="text-sm text-destructive">{state.error}</p>
+          {error && (
+            <p className="text-sm text-destructive">{error}</p>
           )}
 
           <Button
