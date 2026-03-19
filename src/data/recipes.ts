@@ -1,7 +1,7 @@
 import { db } from "@/src/db";
-import { recipes, familyNotes } from "@/src/db/schema";
+import { recipes, familyNotes, recipeGroupShares, familyGroupMembers } from "@/src/db/schema";
 import type { Ingredient, IngredientGroup, InstructionSection } from "@/src/db/schema";
-import { eq, desc, ilike, sql, isNull, and, or } from "drizzle-orm";
+import { eq, desc, ilike, sql, isNull, and, or, inArray } from "drizzle-orm";
 
 // --- Normalization helpers (backward compat with old flat arrays) ---
 
@@ -25,17 +25,50 @@ export function normalizeInstructions(raw: unknown): InstructionSection[] | null
 
 const DEFAULT_PAGE_SIZE = 20;
 
+// Subquery: group IDs for a given user
+function userGroupIdsSq(userId: number) {
+  return db
+    .select({ groupId: familyGroupMembers.groupId })
+    .from(familyGroupMembers)
+    .where(eq(familyGroupMembers.userId, userId));
+}
+
+// Subquery: recipe IDs visible to a user via group shares
+function visibleRecipeIdsSq(userId: number) {
+  return db
+    .select({ recipeId: recipeGroupShares.recipeId })
+    .from(recipeGroupShares)
+    .where(inArray(recipeGroupShares.groupId, userGroupIdsSq(userId)));
+}
+
 export async function getRecipes({
   limit = DEFAULT_PAGE_SIZE,
   offset = 0,
-}: { limit?: number; offset?: number } = {}) {
+  userId,
+  displayName,
+}: {
+  limit?: number;
+  offset?: number;
+  userId: number;
+  displayName: string;
+}) {
   try {
-    const data = await db.query.recipes.findMany({
-      where: isNull(recipes.deletedAt),
-      orderBy: [desc(recipes.createdAt)],
-      limit,
-      offset,
-    });
+    const data = await db
+      .select()
+      .from(recipes)
+      .where(
+        and(
+          isNull(recipes.deletedAt),
+          or(
+            inArray(recipes.id, visibleRecipeIdsSq(userId)),
+            eq(recipes.uploadedBy, displayName)
+          )
+        )
+      )
+      .orderBy(desc(recipes.createdAt))
+      .limit(limit)
+      .offset(offset);
+
     return { success: true as const, data };
   } catch (error) {
     console.error("Failed to fetch recipes:", error);
@@ -71,10 +104,14 @@ export async function searchRecipes({
   query,
   limit = DEFAULT_PAGE_SIZE,
   offset = 0,
+  userId,
+  displayName,
 }: {
   query: string;
   limit?: number;
   offset?: number;
+  userId: number;
+  displayName: string;
 }) {
   try {
     const pattern = `%${query}%`;
@@ -104,6 +141,10 @@ export async function searchRecipes({
         and(
           isNull(recipes.deletedAt),
           or(
+            inArray(recipes.id, visibleRecipeIdsSq(userId)),
+            eq(recipes.uploadedBy, displayName)
+          ),
+          or(
             ilike(recipes.title, pattern),
             sql`${recipes.tags}::text ILIKE ${pattern}`,
             sql`${recipes.ingredients}::text ILIKE ${pattern}`,
@@ -122,12 +163,20 @@ export async function searchRecipes({
   }
 }
 
-export async function getRecipesCount() {
+export async function getRecipesCount(userId: number, displayName: string) {
   try {
     const [result] = await db
       .select({ count: sql<number>`count(*)` })
       .from(recipes)
-      .where(isNull(recipes.deletedAt));
+      .where(
+        and(
+          isNull(recipes.deletedAt),
+          or(
+            inArray(recipes.id, visibleRecipeIdsSq(userId)),
+            eq(recipes.uploadedBy, displayName)
+          )
+        )
+      );
 
     return { success: true as const, data: result.count };
   } catch (error) {
@@ -147,21 +196,63 @@ export async function insertRecipe(data: {
   ingredients?: IngredientGroup[] | null;
   instructions?: InstructionSection[] | null;
   tags?: string[] | null;
+  groupIds?: number[];
 }) {
-  const [created] = await db
-    .insert(recipes)
-    .values({
-      title: data.title,
-      uploadedBy: data.uploadedBy,
-      imageUrl: data.imageUrl ?? null,
-      youtubeUrl: data.youtubeUrl ?? null,
-      sourceUrl: data.sourceUrl ?? null,
-      ingredients: data.ingredients ?? null,
-      instructions: data.instructions ?? null,
-      tags: data.tags ?? null,
-    })
-    .returning();
-  return created;
+  const { groupIds, ...recipeData } = data;
+
+  return await db.transaction(async (tx) => {
+    const [created] = await tx
+      .insert(recipes)
+      .values({
+        title: recipeData.title,
+        uploadedBy: recipeData.uploadedBy,
+        imageUrl: recipeData.imageUrl ?? null,
+        youtubeUrl: recipeData.youtubeUrl ?? null,
+        sourceUrl: recipeData.sourceUrl ?? null,
+        ingredients: recipeData.ingredients ?? null,
+        instructions: recipeData.instructions ?? null,
+        tags: recipeData.tags ?? null,
+      })
+      .returning();
+
+    if (groupIds && groupIds.length > 0) {
+      await tx.insert(recipeGroupShares).values(
+        groupIds.map((groupId) => ({
+          recipeId: created.id,
+          groupId,
+        }))
+      );
+    }
+
+    return created;
+  });
+}
+
+export async function updateRecipeShares(recipeId: number, groupIds: number[]) {
+  return await db.transaction(async (tx) => {
+    // Remove all existing shares
+    await tx
+      .delete(recipeGroupShares)
+      .where(eq(recipeGroupShares.recipeId, recipeId));
+
+    // Insert new shares
+    if (groupIds.length > 0) {
+      await tx.insert(recipeGroupShares).values(
+        groupIds.map((groupId) => ({
+          recipeId,
+          groupId,
+        }))
+      );
+    }
+  });
+}
+
+export async function getRecipeGroupIds(recipeId: number): Promise<number[]> {
+  const rows = await db
+    .select({ groupId: recipeGroupShares.groupId })
+    .from(recipeGroupShares)
+    .where(eq(recipeGroupShares.recipeId, recipeId));
+  return rows.map((r) => r.groupId);
 }
 
 export async function updateRecipeById(

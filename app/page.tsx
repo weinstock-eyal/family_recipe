@@ -1,21 +1,33 @@
 import Link from "next/link";
-import { Plus, CookingPot } from "lucide-react";
+import { Plus, CookingPot, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getRecipes, searchRecipes, getRecipesCount, normalizeIngredients } from "@/src/data/recipes";
 import { RecipeCard } from "@/components/recipe-card";
 import { SearchInput } from "@/components/search-input";
+import { verifySession } from "@/src/lib/auth";
+import { getUserGroupIds } from "@/src/data/groups";
+import { redirect } from "next/navigation";
 
 export default async function Home({
   searchParams,
 }: {
   searchParams: Promise<{ q?: string }>;
 }) {
-  const { q } = await searchParams;
+  const session = await verifySession();
+  if (!session) redirect("/login");
 
-  const [recipesResult, countResult] = await Promise.all([
-    q ? searchRecipes({ query: q }) : getRecipes(),
-    getRecipesCount(),
+  const { q } = await searchParams;
+  const { userId, displayName } = session;
+
+  const [recipesResult, countResult, groupIds] = await Promise.all([
+    q
+      ? searchRecipes({ query: q, userId, displayName })
+      : getRecipes({ userId, displayName }),
+    getRecipesCount(userId, displayName),
+    getUserGroupIds(userId),
   ]);
+
+  const hasNoGroups = groupIds.length === 0;
 
   const recipes = recipesResult.success ? recipesResult.data : [];
   const totalCount = countResult.success ? countResult.data : 0;
@@ -36,6 +48,15 @@ export default async function Home({
           </Button>
         </Link>
       </div>
+
+      {hasNoGroups && (
+        <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
+          <Info className="mt-0.5 size-4 shrink-0" />
+          <p>
+            אתה רואה רק מתכונים שהעלית. בקש ממשתמש אחר שישלח לך הזמנה להצטרף לקבוצה כדי לראות מתכונים משותפים.
+          </p>
+        </div>
+      )}
 
       <SearchInput />
 
