@@ -4,8 +4,9 @@ import { ArrowRight, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { getRecipeById, normalizeIngredients, normalizeInstructions } from "@/src/data/recipes";
+import { getRecipeById, normalizeIngredients, normalizeInstructions, getRecipeGroupIds } from "@/src/data/recipes";
 import { verifySession } from "@/src/lib/auth";
+import { getUserGroupIds } from "@/src/data/groups";
 import { RecipeDetail } from "@/components/recipe-detail";
 import { IngredientList } from "@/components/ingredient-list";
 import { AddToGroceryButton } from "@/components/add-to-grocery-button";
@@ -32,6 +33,16 @@ export default async function RecipePage({
   const recipe = result.data;
   const currentUser = session?.displayName ?? "";
   const isOwner = recipe.uploadedBy === currentUser;
+
+  // Visibility check: user must be owner or share a group with the recipe
+  if (!isOwner && session) {
+    const [userGroupIds, recipeGroupIds] = await Promise.all([
+      getUserGroupIds(session.userId),
+      getRecipeGroupIds(recipeId),
+    ]);
+    const hasAccess = recipeGroupIds.some((gid) => userGroupIds.includes(gid));
+    if (!hasAccess) notFound();
+  }
   const ingredientGroups = normalizeIngredients(recipe.ingredients);
   const instructionSections = normalizeInstructions(recipe.instructions);
   const hasIngredients = ingredientGroups !== null && ingredientGroups.some(g => g.items.length > 0);

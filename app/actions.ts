@@ -2,14 +2,17 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { getDisplayName } from "@/src/lib/auth";
+import { getDisplayName, verifySession } from "@/src/lib/auth";
 import {
   insertRecipe,
   updateRecipeById,
+  updateRecipeShares,
   softDeleteRecipe,
   toggleReaction,
   getRecipeById,
 } from "@/src/data/recipes";
+import { getUserGroupIds } from "@/src/data/groups";
+import { getUserById } from "@/src/data/users";
 import {
   insertNote,
   softDeleteNote,
@@ -45,6 +48,7 @@ const CreateRecipeSchema = z.object({
   tags: z.array(z.string()).optional(),
   initialNote: z.string().min(1).optional(),
   initialNoteType: z.enum(["comment", "tip", "change"]).optional(),
+  groupIds: z.array(z.number().int().positive()).optional(),
 });
 
 const UpdateRecipeSchema = z.object({
@@ -56,6 +60,7 @@ const UpdateRecipeSchema = z.object({
   ingredients: z.array(IngredientGroupSchema).optional(),
   instructions: z.array(InstructionSectionSchema).optional(),
   tags: z.array(z.string()).optional(),
+  groupIds: z.array(z.number().int().positive()).optional(),
 });
 
 const DeleteRecipeSchema = z.object({
@@ -90,11 +95,25 @@ export async function createRecipe(
       return { success: false, error: parsed.error.issues[0].message };
     }
 
-    const displayName = await getDisplayName();
-    const { initialNote, initialNoteType, ...recipeData } = parsed.data;
+    const session = await verifySession();
+    if (!session) return { success: false, error: "לא מחובר" };
+    const displayName = session.displayName;
+
+    const { initialNote, initialNoteType, groupIds, ...recipeData } = parsed.data;
+
+    // If no groupIds provided, use all user's groups if shareWithAllByDefault is on
+    let finalGroupIds = groupIds;
+    if (!finalGroupIds) {
+      const userResult = await getUserById(session.userId);
+      if (userResult.success && userResult.data.shareWithAllByDefault === 1) {
+        finalGroupIds = await getUserGroupIds(session.userId);
+      }
+    }
+
     const created = await insertRecipe({
       ...recipeData,
       uploadedBy: displayName,
+      groupIds: finalGroupIds,
     });
 
     if (initialNote) {
@@ -123,7 +142,7 @@ export async function updateRecipe(
       return { success: false, error: parsed.error.issues[0].message };
     }
 
-    const { id, ...fields } = parsed.data;
+    const { id, groupIds, ...fields } = parsed.data;
 
     // Ownership check
     const result = await getRecipeById(id);
@@ -139,6 +158,11 @@ export async function updateRecipe(
     const updated = await updateRecipeById(id, fields);
     if (!updated) {
       return { success: false, error: "המתכון לא נמצא" };
+    }
+
+    // Update group shares if provided
+    if (groupIds) {
+      await updateRecipeShares(id, groupIds);
     }
 
     revalidatePath("/");

@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
-import { getRecipeById, normalizeIngredients, normalizeInstructions } from "@/src/data/recipes";
+import { getRecipeById, normalizeIngredients, normalizeInstructions, getRecipeGroupIds } from "@/src/data/recipes";
 import { verifySession } from "@/src/lib/auth";
+import { getGroupsByUserId } from "@/src/data/groups";
 import { RecipeForm } from "@/components/recipe-form";
 import { updateRecipe } from "@/app/actions";
 
@@ -19,10 +20,20 @@ export default async function EditRecipePage({
   ]);
 
   if (!result.success) notFound();
+  if (!session) redirect("/login");
 
-  if (result.data.uploadedBy !== session?.displayName) {
+  if (result.data.uploadedBy !== session.displayName) {
     redirect(`/recipes/${recipeId}`);
   }
+
+  const [groupsResult, recipeGroupIds] = await Promise.all([
+    getGroupsByUserId(session.userId),
+    getRecipeGroupIds(recipeId),
+  ]);
+
+  const groups = groupsResult.success
+    ? groupsResult.data.map((g) => ({ id: g.id, name: g.name }))
+    : [];
 
   const recipe = result.data;
 
@@ -43,6 +54,8 @@ export default async function EditRecipePage({
         action={updateRecipe}
         submitLabel="עדכון מתכון"
         pendingLabel="מעדכן..."
+        groups={groups}
+        initialGroupIds={recipeGroupIds}
       />
     </div>
   );

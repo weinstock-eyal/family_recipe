@@ -2,12 +2,13 @@
 
 import { useState, useActionState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, ChevronDown, ChevronUp, MessageSquare } from "lucide-react";
+import { Loader2, ChevronDown, ChevronUp, MessageSquare, Users2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { IngredientFormList } from "@/components/ingredient-form-list";
 import { InstructionFormList } from "@/components/instruction-form-list";
 import { ImageUpload } from "@/components/image-upload";
@@ -25,15 +26,23 @@ type RecipeData = {
   tags?: string[] | null;
 };
 
+type GroupOption = {
+  id: number;
+  name: string;
+};
+
 type Props = {
   initialData?: RecipeData;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   action: (input: any) => Promise<ActionResult<{ id: number }>>;
   submitLabel: string;
   pendingLabel: string;
+  groups?: GroupOption[];
+  initialGroupIds?: number[];
+  shareWithAllByDefault?: boolean;
 };
 
-export function RecipeForm({ initialData, action, submitLabel, pendingLabel }: Props) {
+export function RecipeForm({ initialData, action, submitLabel, pendingLabel, groups, initialGroupIds, shareWithAllByDefault }: Props) {
   const router = useRouter();
   const isEdit = !!initialData?.id;
 
@@ -54,6 +63,12 @@ export function RecipeForm({ initialData, action, submitLabel, pendingLabel }: P
   const [showInstructions, setShowInstructions] = useState(hasInitialInstructions);
   const [initialNote, setInitialNote] = useState("");
   const [initialNoteType, setInitialNoteType] = useState<"comment" | "tip" | "change">("tip");
+
+  // Group sharing - default: all groups selected if shareWithAllByDefault is on
+  const defaultGroupIds = initialGroupIds ?? (shareWithAllByDefault ? (groups ?? []).map(g => g.id) : []);
+  const [selectedGroupIds, setSelectedGroupIds] = useState<number[]>(defaultGroupIds);
+  const showGroupSelector = (groups ?? []).length > 1;
+  const [showGroups, setShowGroups] = useState(!shareWithAllByDefault && !initialGroupIds);
 
   const [state, formAction, isPending] = useActionState(
     async (_prev: unknown) => {
@@ -88,6 +103,7 @@ export function RecipeForm({ initialData, action, submitLabel, pendingLabel }: P
           initialNote: initialNote.trim(),
           initialNoteType,
         }),
+        ...(groups && groups.length > 0 && { groupIds: selectedGroupIds }),
       };
 
       const result = await action(input);
@@ -148,6 +164,53 @@ export function RecipeForm({ initialData, action, submitLabel, pendingLabel }: P
               placeholder="קינוחים, חלבי, אפייה"
             />
           </div>
+
+          {/* Group Sharing Selector */}
+          {showGroupSelector && (
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={() => setShowGroups(!showGroups)}
+                className="flex items-center gap-2 rounded-lg px-2 py-2 min-h-[44px] text-base font-semibold hover:bg-muted active:bg-muted/80 transition-colors -mx-2"
+              >
+                {showGroups ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+                <Users2 className="size-4" />
+                שיתוף עם קבוצות
+                {selectedGroupIds.length > 0 && (
+                  <span className="text-sm font-normal text-muted-foreground">
+                    ({selectedGroupIds.length} מתוך {groups!.length})
+                  </span>
+                )}
+              </button>
+              {showGroups && (
+                <div className="space-y-2 rounded-lg border p-3">
+                  {groups!.map((group) => (
+                    <div key={group.id} className="flex items-center gap-3 min-h-[44px]">
+                      <Checkbox
+                        id={`group-${group.id}`}
+                        checked={selectedGroupIds.includes(group.id)}
+                        onCheckedChange={(checked) => {
+                          setSelectedGroupIds(prev =>
+                            checked
+                              ? [...prev, group.id]
+                              : prev.filter(id => id !== group.id)
+                          );
+                        }}
+                      />
+                      <Label htmlFor={`group-${group.id}`} className="text-sm cursor-pointer">
+                        {group.name}
+                      </Label>
+                    </div>
+                  ))}
+                  {selectedGroupIds.length === 0 && (
+                    <p className="text-xs text-amber-600">
+                      המתכון לא ישותף עם אף קבוצה ויהיה גלוי רק לך.
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Collapsible Ingredients */}
           <div className="space-y-3">
