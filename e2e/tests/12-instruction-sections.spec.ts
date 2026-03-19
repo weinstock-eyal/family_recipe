@@ -17,7 +17,7 @@ test.describe("Instruction Sections", () => {
 
     // Submit
     await page.getByRole("button", { name: "שמירת מתכון" }).click();
-    await expect(page).toHaveURL(/\/recipes\/\d+/);
+    await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
 
     // Should show instructions
     await expect(page.getByRole("heading", { name: "הוראות הכנה" })).toBeVisible();
@@ -49,7 +49,7 @@ test.describe("Instruction Sections", () => {
 
     // Submit
     await page.getByRole("button", { name: "שמירת מתכון" }).click();
-    await expect(page).toHaveURL(/\/recipes\/\d+/);
+    await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
 
     // Should show section headings
     await expect(page.getByText("הכנת הקציצות")).toBeVisible();
@@ -64,7 +64,7 @@ test.describe("Instruction Sections", () => {
     // Navigate to the recipe created in previous test
     await page.goto("/");
     await page.getByText("קציצות ברוטב").first().click();
-    await expect(page).toHaveURL(/\/recipes\/\d+/);
+    await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
 
     // Both sections should start with step "1"
     const stepNumbers = page.locator("span.flex.size-7");

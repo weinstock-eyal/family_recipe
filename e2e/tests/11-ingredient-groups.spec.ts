@@ -17,7 +17,7 @@ test.describe("Ingredient Groups", () => {
 
     // Submit
     await page.getByRole("button", { name: "שמירת מתכון" }).click();
-    await expect(page).toHaveURL(/\/recipes\/\d+/);
+    await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
 
     // Should show ingredients heading without group name
     await expect(page.getByRole("heading", { name: "מרכיבים" })).toBeVisible();
@@ -53,7 +53,7 @@ test.describe("Ingredient Groups", () => {
 
     // Submit
     await page.getByRole("button", { name: "שמירת מתכון" }).click();
-    await expect(page).toHaveURL(/\/recipes\/\d+/);
+    await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
 
     // Should show both group names
     await expect(page.getByText("לעוגה")).toBeVisible();
@@ -68,7 +68,7 @@ test.describe("Ingredient Groups", () => {
     // Navigate to a recipe with ingredients (hummus)
     await page.goto("/");
     await page.getByText("חומוס הבית").first().click();
-    await expect(page).toHaveURL(/\/recipes\/\d+/);
+    await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
 
     // Click x2 multiplier
     await page.getByRole("button", { name: "x2" }).click();

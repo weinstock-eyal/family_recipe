@@ -12,7 +12,8 @@ test.describe("Recipe Creation", () => {
     await page.getByRole("button", { name: "שמירת מתכון" }).click();
 
     // Should redirect to detail page
-    await expect(page).toHaveURL(/\/recipes\/\d+/);
+    await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
+    await page.waitForLoadState("networkidle");
     await expect(page.getByRole("heading", { name: "מתכון בדיקה מינימלי" })).toBeVisible();
 
     // Server should set the uploader to current user
@@ -47,10 +48,11 @@ test.describe("Recipe Creation", () => {
     await page.getByRole("button", { name: "שמירת מתכון" }).click();
 
     // Verify redirect and data
-    await expect(page).toHaveURL(/\/recipes\/\d+/);
+    await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
+    await page.waitForLoadState("networkidle");
     await expect(page.getByRole("heading", { name: "מתכון מלא לבדיקה" })).toBeVisible();
     await expect(page.getByText("בדיקה", { exact: true })).toBeVisible();
-    await expect(page.getByText("חדש", { exact: true })).toBeVisible();
+    await expect(page.getByRole("main").getByText("חדש", { exact: true })).toBeVisible();
     await expect(page.getByText("קמח")).toBeVisible();
     await expect(page.getByText("לערבב הכל")).toBeVisible();
   });

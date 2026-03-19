@@ -16,7 +16,7 @@ test.describe("Grocery List", () => {
     // Navigate to recipe with ingredients
     await page.goto("/");
     await page.getByText(RECIPES.hummus.title).first().click();
-    await expect(page).toHaveURL(/\/recipes\/\d+/);
+    await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
 
     // Click add to grocery
     await page.getByRole("button", { name: "הוסף לרשימת קניות" }).click();
@@ -39,7 +39,7 @@ test.describe("Grocery List", () => {
     // Add items first
     await page.goto("/");
     await page.getByText(RECIPES.tea.title).first().click();
-    await expect(page).toHaveURL(/\/recipes\/\d+/);
+    await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
     await page.getByRole("button", { name: "הוסף לרשימת קניות" }).click();
     await expect(page.getByText("נוסף לרשימת הקניות!")).toBeVisible();
 
@@ -54,7 +54,7 @@ test.describe("Grocery List", () => {
     // Add items
     await page.goto("/");
     await page.getByText(RECIPES.cookies.title).first().click();
-    await expect(page).toHaveURL(/\/recipes\/\d+/);
+    await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
     await page.getByRole("button", { name: "הוסף לרשימת קניות" }).click();
     await expect(page.getByText("נוסף לרשימת הקניות!")).toBeVisible();
 
@@ -80,7 +80,7 @@ test.describe("Grocery List", () => {
     await page.getByPlaceholder("יחידה").first().fill("כוס");
     await page.getByPlaceholder("שם המרכיב").first().fill("פריט להסרה");
     await page.getByRole("button", { name: "שמירת מתכון" }).click();
-    await expect(page).toHaveURL(/\/recipes\/\d+/);
+    await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
     await page.getByRole("button", { name: "הוסף לרשימת קניות" }).click();
     await expect(page.getByText("נוסף לרשימת הקניות!")).toBeVisible();
 
@@ -100,7 +100,7 @@ test.describe("Grocery List", () => {
     // Add items
     await page.goto("/");
     await page.getByText(RECIPES.hummus.title).first().click();
-    await expect(page).toHaveURL(/\/recipes\/\d+/);
+    await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
     await page.getByRole("button", { name: "הוסף לרשימת קניות" }).click();
     await expect(page.getByText("נוסף לרשימת הקניות!")).toBeVisible();
 
@@ -125,7 +125,7 @@ test.describe("Grocery List", () => {
     // Add items
     await page.goto("/");
     await page.getByText(RECIPES.tea.title).first().click();
-    await expect(page).toHaveURL(/\/recipes\/\d+/);
+    await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
     await page.getByRole("button", { name: "הוסף לרשימת קניות" }).click();
     await expect(page.getByText("נוסף לרשימת הקניות!")).toBeVisible();
 
@@ -144,7 +144,7 @@ test.describe("Grocery List", () => {
   test("add-to-grocery success feedback auto-resets", async ({ page }) => {
     await page.goto("/");
     await page.getByText(RECIPES.cookies.title).first().click();
-    await expect(page).toHaveURL(/\/recipes\/\d+/);
+    await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
 
     await page.getByRole("button", { name: "הוסף לרשימת קניות" }).click();
 

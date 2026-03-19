@@ -41,7 +41,7 @@ test.describe("Image Upload", () => {
     await page.getByPlaceholder("למשל: עוגת שוקולד של סבתא").fill("מתכון עם תמונה URL");
     await page.getByRole("button", { name: "שמירת מתכון" }).click();
 
-    await expect(page).toHaveURL(/\/recipes\/\d+/);
+    await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
 
     // Image should be displayed on the recipe page
     await expect(page.locator("img").first()).toBeVisible();

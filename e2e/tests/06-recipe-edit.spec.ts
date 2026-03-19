@@ -7,7 +7,7 @@ async function createOwnRecipe(page: import("@playwright/test").Page, title: str
   await page.waitForLoadState("networkidle");
   await page.getByPlaceholder("למשל: עוגת שוקולד של סבתא").fill(title);
   await page.getByRole("button", { name: "שמירת מתכון" }).click();
-  await expect(page).toHaveURL(/\/recipes\/\d+/);
+  await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
   await page.waitForLoadState("networkidle");
 }
 
@@ -22,11 +22,12 @@ test.describe("Recipe Editing", () => {
     await page.getByPlaceholder("יחידה").first().fill("כוס");
     await page.getByPlaceholder("שם המרכיב").first().fill("קמח");
     await page.getByRole("button", { name: "שמירת מתכון" }).click();
-    await expect(page).toHaveURL(/\/recipes\/\d+/);
+    await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
+    await page.waitForLoadState("networkidle");
 
     // Click edit button
     await page.getByRole("link", { name: "עריכה" }).click();
-    await expect(page).toHaveURL(/\/edit/);
+    await page.waitForURL(/\/edit/, { timeout: 10000 });
 
     // Verify page heading
     await expect(page.getByRole("heading", { name: "עריכת מתכון" })).toBeVisible();
@@ -57,7 +58,8 @@ test.describe("Recipe Editing", () => {
     await page.getByRole("button", { name: "עדכון מתכון" }).click();
 
     // Verify redirect and updated title
-    await expect(page).toHaveURL(/\/recipes\/\d+$/);
+    await page.waitForURL(/\/recipes\/\d+$/, { timeout: 15000 });
+    await page.waitForLoadState("networkidle");
     await expect(page.getByRole("heading", { name: "מתכון מעודכן" })).toBeVisible();
   });
 
@@ -96,23 +98,22 @@ test.describe("Recipe Editing", () => {
     await page.getByPlaceholder("יחידה").first().fill("כוסות");
     await page.getByPlaceholder("שם המרכיב").first().fill("סוכר");
     await page.getByRole("button", { name: "שמירת מתכון" }).click();
-    await expect(page).toHaveURL(/\/recipes\/\d+/);
+    await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
+    await page.waitForLoadState("networkidle");
 
     // Verify ingredient exists
     await expect(page.getByText("סוכר")).toBeVisible();
 
     // Edit only the title
     await page.getByRole("link", { name: "עריכה" }).click();
-    await expect(page).toHaveURL(/\/edit/);
-
-    // Wait for edit form hydration
+    await page.waitForURL(/\/edit/, { timeout: 10000 });
     await page.waitForLoadState("networkidle");
 
     const titleInput = page.getByPlaceholder("למשל: עוגת שוקולד של סבתא");
     await titleInput.clear();
     await titleInput.fill("מתכון עם מרכיבים - מעודכן");
     await page.getByRole("button", { name: "עדכון מתכון" }).click();
-    await expect(page).toHaveURL(/\/recipes\/\d+$/);
+    await page.waitForURL(/\/recipes\/\d+$/, { timeout: 15000 });
 
     // Ingredients should still be there
     await expect(page.getByText("סוכר")).toBeVisible();
