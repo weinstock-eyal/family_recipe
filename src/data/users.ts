@@ -33,6 +33,7 @@ export async function getUserById(id: number) {
         displayName: users.displayName,
         role: users.role,
         isActive: users.isActive,
+        shareWithAllByDefault: users.shareWithAllByDefault,
         createdAt: users.createdAt,
       })
       .from(users)
@@ -101,6 +102,7 @@ export async function updateUser(
     role?: string;
     isActive?: number;
     passwordHash?: string;
+    shareWithAllByDefault?: number;
   }
 ) {
   const [updated] = await db

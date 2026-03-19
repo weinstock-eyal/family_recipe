@@ -23,7 +23,12 @@ export async function middleware(request: NextRequest) {
   // Check for session cookie
   const token = request.cookies.get("family_session")?.value;
   if (!token) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    const loginUrl = new URL("/login", request.url);
+    // Preserve return URL for invite links so user returns after login
+    if (pathname.startsWith("/invite/")) {
+      loginUrl.searchParams.set("returnTo", pathname);
+    }
+    return NextResponse.redirect(loginUrl);
   }
 
   try {

@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, ShoppingCart, Plus, Users, Settings } from "lucide-react";
+import { Home, ShoppingCart, Plus, Users, Users2 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 
 const navItems = [
   { href: "/", label: "בית", icon: Home },
   { href: "/grocery", label: "קניות", icon: ShoppingCart },
   { href: "/recipes/new", label: "חדש", icon: Plus, highlight: true },
+  { href: "/groups", label: "קבוצות", icon: Users2 },
   { href: "/admin/users", label: "משתמשים", icon: Users, adminOnly: true },
 ];
 
