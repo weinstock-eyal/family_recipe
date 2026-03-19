@@ -57,19 +57,21 @@ export function LikeButtons({ recipeId, likes, dislikes }: Props) {
   }
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2">
       <Button
         variant={reaction === "like" ? "default" : "ghost"}
-        size="sm"
+        size="default"
         onClick={() => handleClick("like")}
+        className="min-h-[44px] min-w-[44px] gap-2 px-4"
       >
         <ThumbsUp className="size-5" />
         {likesCount}
       </Button>
       <Button
         variant={reaction === "dislike" ? "default" : "ghost"}
-        size="sm"
+        size="default"
         onClick={() => handleClick("dislike")}
+        className="min-h-[44px] min-w-[44px] gap-2 px-4"
       >
         <ThumbsDown className="size-5" />
         {dislikesCount}

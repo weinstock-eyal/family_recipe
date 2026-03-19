@@ -28,18 +28,18 @@ export function RecipeDetail({
   return (
     <div className="space-y-6">
       {imageUrl ? (
-        <div className="relative aspect-video w-full max-w-md overflow-hidden rounded-xl bg-muted">
+        <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-muted sm:max-w-md">
           <Image
             src={imageUrl}
             alt={title}
             fill
             className="object-cover"
-            sizes="(max-width: 448px) 100vw, 448px"
+            sizes="(max-width: 640px) 100vw, 448px"
             priority
           />
         </div>
       ) : (
-        <div className="flex aspect-video w-full max-w-md items-center justify-center rounded-xl bg-muted">
+        <div className="flex aspect-video w-full items-center justify-center rounded-xl bg-muted sm:max-w-md">
           <ImageIcon className="size-12 text-muted-foreground/30" />
         </div>
       )}

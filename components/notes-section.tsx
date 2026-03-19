@@ -64,7 +64,7 @@ export function NotesSection({ recipeId, notes, currentUser }: Props) {
           />
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
           <div className="flex items-center gap-2">
             {(["comment", "tip", "change"] as const).map((type) => {
               const labels = { comment: "הערה", tip: "טיפ", change: "שינוי" };
@@ -73,15 +73,16 @@ export function NotesSection({ recipeId, notes, currentUser }: Props) {
                   key={type}
                   type="button"
                   variant={noteType === type ? "default" : "outline"}
-                  size="sm"
+                  size="default"
                   onClick={() => setNoteType(type)}
+                  className="min-h-[44px]"
                 >
                   {labels[type]}
                 </Button>
               );
             })}
           </div>
-          <Button type="submit" disabled={isPending || !noteText.trim()}>
+          <Button type="submit" disabled={isPending || !noteText.trim()} className="w-full sm:w-auto min-h-[44px]">
             {isPending ? "שומר..." : "הוסף הערה"}
           </Button>
         </div>

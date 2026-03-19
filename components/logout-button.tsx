@@ -8,12 +8,12 @@ export function LogoutButton() {
   return (
     <Button
       variant="ghost"
-      size="sm"
+      size="default"
       onClick={() => logoutAction()}
-      className="gap-1.5 text-muted-foreground hover:text-foreground"
+      className="min-h-[44px] gap-1.5 text-muted-foreground hover:text-foreground"
     >
       <LogOut className="size-4" />
-      יציאה
+      <span className="hidden sm:inline">יציאה</span>
     </Button>
   );
 }

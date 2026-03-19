@@ -32,7 +32,7 @@ export function GroceryListHeader({ sessionId, totalCount, checkedCount }: Props
   }
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between gap-4">
       <div className="space-y-1">
         <h1 className="text-2xl font-bold">רשימת קניות</h1>
         <p className="text-sm text-muted-foreground">
@@ -54,11 +54,11 @@ export function GroceryListHeader({ sessionId, totalCount, checkedCount }: Props
                 האם לנקות את כל רשימת הקניות?
               </DialogDescription>
             </DialogHeader>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setOpen(false)} disabled={clearing}>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button variant="outline" onClick={() => setOpen(false)} disabled={clearing} className="min-h-[44px]">
                 ביטול
               </Button>
-              <Button variant="destructive" onClick={handleClear} disabled={clearing}>
+              <Button variant="destructive" onClick={handleClear} disabled={clearing} className="min-h-[44px]">
                 {clearing ? (
                   <>
                     <Loader2 className="size-4 animate-spin" />

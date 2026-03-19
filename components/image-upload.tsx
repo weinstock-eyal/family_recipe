@@ -159,7 +159,7 @@ export function ImageUpload({ value, onChange }: Props) {
         <button
           type="button"
           onClick={() => setShowUrlInput(!showUrlInput)}
-          className="text-xs text-muted-foreground underline"
+          className="min-h-[44px] px-2 text-xs text-muted-foreground underline"
         >
           {showUrlInput ? "הסתר" : "או הזן קישור לתמונה"}
         </button>

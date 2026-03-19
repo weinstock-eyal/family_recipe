@@ -11,6 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 'authorization.md'
 - 'git-workflow.md'
 - 'server-components.md'
+- 'mobile-and-pwa.md'
 
 ## Project Overview
 

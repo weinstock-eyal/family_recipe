@@ -46,7 +46,7 @@ export function NoteCard({
         {isOwner && onDelete && (
           <button
             onClick={() => onDelete(id)}
-            className="text-sm text-destructive hover:underline"
+            className="min-h-[44px] min-w-[44px] rounded-lg px-2 text-sm text-destructive hover:bg-destructive/10 active:bg-destructive/20 transition-colors"
           >
             מחיקה
           </button>

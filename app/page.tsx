@@ -29,8 +29,8 @@ export default async function Home({
             <p className="text-sm text-muted-foreground">{totalCount} מתכונים</p>
           )}
         </div>
-        <Link href="/recipes/new">
-          <Button className="gap-1.5 bg-contrast text-contrast-foreground hover:bg-contrast/90">
+        <Link href="/recipes/new" className="w-full sm:w-auto">
+          <Button className="w-full sm:w-auto min-h-[44px] gap-1.5 bg-contrast text-contrast-foreground hover:bg-contrast/90">
             <Plus className="size-4" />
             מתכון חדש
           </Button>

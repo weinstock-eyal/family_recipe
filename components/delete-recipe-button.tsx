@@ -52,10 +52,10 @@ export function DeleteRecipeButton({ recipeId, recipeTitle }: Props) {
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2 sm:gap-0">
-          <Button variant="outline" onClick={() => setOpen(false)} disabled={deleting}>
+          <Button variant="outline" onClick={() => setOpen(false)} disabled={deleting} className="min-h-[44px]">
             ביטול
           </Button>
-          <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
+          <Button variant="destructive" onClick={handleDelete} disabled={deleting} className="min-h-[44px]">
             {deleting ? (
               <>
                 <Loader2 className="size-4 animate-spin" />

@@ -34,7 +34,7 @@ export function AddToGroceryButton({ recipeId, ingredients, sessionId }: Props) 
   return (
     <Button
       variant="outline"
-      className="gap-1.5"
+      className="w-full sm:w-auto min-h-[44px] gap-1.5"
       onClick={handleAdd}
       disabled={status === "loading" || status === "success"}
     >

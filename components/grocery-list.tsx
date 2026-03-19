@@ -63,12 +63,14 @@ export function GroceryList({ items }: Props) {
             {groupItems.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center gap-3 rounded-lg border p-3"
+                className="flex items-center gap-3 rounded-lg border p-3 min-h-[52px]"
               >
-                <Checkbox
-                  checked={item.checked === 1}
-                  onCheckedChange={() => handleToggle(item.id)}
-                />
+                <div className="flex items-center justify-center min-w-[44px] min-h-[44px]">
+                  <Checkbox
+                    checked={item.checked === 1}
+                    onCheckedChange={() => handleToggle(item.id)}
+                  />
+                </div>
                 <span
                   className={`flex-1 text-base ${
                     item.checked === 1
@@ -82,9 +84,9 @@ export function GroceryList({ items }: Props) {
                 </span>
                 <Button
                   variant="ghost"
-                  size="icon-sm"
+                  size="icon"
                   onClick={() => handleRemove(item.id)}
-                  className="text-muted-foreground hover:text-destructive"
+                  className="min-w-[44px] min-h-[44px] text-muted-foreground hover:text-destructive"
                 >
                   <X className="size-4" />
                 </Button>

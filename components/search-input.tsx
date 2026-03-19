@@ -34,7 +34,8 @@ export function SearchInput() {
         placeholder="חיפוש לפי שם, מרכיב, תגית או הערה..."
         value={value}
         onChange={handleChange}
-        className="ps-9"
+        inputMode="search"
+        className="ps-9 min-h-[44px]"
       />
     </div>
   );

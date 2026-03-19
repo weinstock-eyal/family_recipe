@@ -160,7 +160,7 @@ export function RecipeForm({ initialData, action, submitLabel, pendingLabel }: P
                   setIngredientGroups([{ items: [{ amount: "", unit: "", item: "" }] }]);
                 }
               }}
-              className="flex items-center gap-2 text-base font-semibold"
+              className="flex items-center gap-2 rounded-lg px-2 py-2 min-h-[44px] text-base font-semibold hover:bg-muted active:bg-muted/80 transition-colors -mx-2"
             >
               {showIngredients ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
               מרכיבים (אופציונלי)
@@ -181,7 +181,7 @@ export function RecipeForm({ initialData, action, submitLabel, pendingLabel }: P
                   setInstructionSections([{ steps: [""] }]);
                 }
               }}
-              className="flex items-center gap-2 text-base font-semibold"
+              className="flex items-center gap-2 rounded-lg px-2 py-2 min-h-[44px] text-base font-semibold hover:bg-muted active:bg-muted/80 transition-colors -mx-2"
             >
               {showInstructions ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
               הוראות הכנה (אופציונלי)
@@ -196,7 +196,7 @@ export function RecipeForm({ initialData, action, submitLabel, pendingLabel }: P
               <button
                 type="button"
                 onClick={() => setInitialNote(initialNote ? "" : " ")}
-                className="flex items-center gap-2 text-base font-semibold"
+                className="flex items-center gap-2 rounded-lg px-2 py-2 min-h-[44px] text-base font-semibold hover:bg-muted active:bg-muted/80 transition-colors -mx-2"
               >
                 {initialNote ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
                 <MessageSquare className="size-4" />
@@ -218,8 +218,9 @@ export function RecipeForm({ initialData, action, submitLabel, pendingLabel }: P
                           key={type}
                           type="button"
                           variant={initialNoteType === type ? "default" : "outline"}
-                          size="sm"
+                          size="default"
                           onClick={() => setInitialNoteType(type)}
+                          className="min-h-[44px]"
                         >
                           {labels[type]}
                         </Button>
@@ -235,8 +236,8 @@ export function RecipeForm({ initialData, action, submitLabel, pendingLabel }: P
             <p className="text-sm text-destructive">{state.error}</p>
           )}
 
-          <div className="flex items-center gap-3">
-            <Button type="submit" disabled={isPending}>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Button type="submit" disabled={isPending} size="lg" className="w-full sm:w-auto min-h-[44px]">
               {isPending ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
@@ -246,7 +247,7 @@ export function RecipeForm({ initialData, action, submitLabel, pendingLabel }: P
                 submitLabel
               )}
             </Button>
-            <Button type="button" variant="outline" onClick={() => router.back()}>
+            <Button type="button" variant="outline" size="lg" className="w-full sm:w-auto min-h-[44px]" onClick={() => router.back()}>
               ביטול
             </Button>
           </div>

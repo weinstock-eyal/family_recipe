@@ -40,9 +40,9 @@ export default async function RecipePage({
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <Link href="/">
-          <Button variant="ghost" size="sm" className="gap-1.5">
+          <Button variant="ghost" size="default" className="min-h-[44px] gap-1.5">
             <ArrowRight className="size-4" />
             חזרה למתכונים
           </Button>
@@ -51,7 +51,7 @@ export default async function RecipePage({
         {isOwner && (
           <div className="flex items-center gap-2">
             <Link href={`/recipes/${recipeId}/edit`}>
-              <Button variant="outline" size="sm" className="gap-1.5">
+              <Button variant="outline" size="default" className="min-h-[44px] gap-1.5">
                 <Pencil className="size-4" />
                 עריכה
               </Button>
