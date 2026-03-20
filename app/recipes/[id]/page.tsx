@@ -13,6 +13,7 @@ import { AddToGroceryButton } from "@/components/add-to-grocery-button";
 import { LikeButtons } from "@/components/like-buttons";
 import { NotesSection } from "@/components/notes-section";
 import { DeleteRecipeButton } from "@/components/delete-recipe-button";
+import { ExportRecipeImage } from "@/components/export-recipe-image";
 
 export default async function RecipePage({
   params,
@@ -59,17 +60,28 @@ export default async function RecipePage({
           </Button>
         </Link>
 
-        {isOwner && (
-          <div className="flex items-center gap-2">
-            <Link href={`/recipes/${recipeId}/edit`}>
-              <Button variant="outline" size="default" className="min-h-[44px] gap-1.5">
-                <Pencil className="size-4" />
-                עריכה
-              </Button>
-            </Link>
-            <DeleteRecipeButton recipeId={recipeId} recipeTitle={recipe.title} />
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          <ExportRecipeImage
+            title={recipe.title}
+            uploadedBy={recipe.uploadedBy}
+            createdAt={recipe.createdAt}
+            imageUrl={recipe.imageUrl}
+            ingredientGroups={ingredientGroups}
+            instructionSections={instructionSections}
+            tags={recipe.tags}
+          />
+          {isOwner && (
+            <>
+              <Link href={`/recipes/${recipeId}/edit`}>
+                <Button variant="outline" size="default" className="min-h-[44px] gap-1.5">
+                  <Pencil className="size-4" />
+                  עריכה
+                </Button>
+              </Link>
+              <DeleteRecipeButton recipeId={recipeId} recipeTitle={recipe.title} />
+            </>
+          )}
+        </div>
       </div>
 
       <RecipeDetail
