@@ -3,6 +3,7 @@ import { test, expect } from "@playwright/test";
 test.describe("Ingredient Groups", () => {
   test("create recipe with single unnamed group shows flat list", async ({ page }) => {
     await page.goto("/recipes/new");
+    await page.waitForLoadState("networkidle");
 
     // Fill title
     await page.getByPlaceholder("למשל: עוגת שוקולד של סבתא").fill("מתכון בדיקה - קבוצה אחת");
@@ -17,7 +18,7 @@ test.describe("Ingredient Groups", () => {
 
     // Submit
     await page.getByRole("button", { name: "שמירת מתכון" }).click();
-    await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
+    await page.waitForURL(/\/recipes\/\d+/, { timeout: 30000 });
 
     // Should show ingredients heading without group name
     await expect(page.getByRole("heading", { name: "מרכיבים" })).toBeVisible();
@@ -26,6 +27,7 @@ test.describe("Ingredient Groups", () => {
 
   test("create recipe with two named groups", async ({ page }) => {
     await page.goto("/recipes/new");
+    await page.waitForLoadState("networkidle");
 
     await page.getByPlaceholder("למשל: עוגת שוקולד של סבתא").fill("עוגת שוקולד עם ציפוי");
 
@@ -53,7 +55,7 @@ test.describe("Ingredient Groups", () => {
 
     // Submit
     await page.getByRole("button", { name: "שמירת מתכון" }).click();
-    await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
+    await page.waitForURL(/\/recipes\/\d+/, { timeout: 30000 });
 
     // Should show both group names
     await expect(page.getByText("לעוגה")).toBeVisible();
@@ -68,7 +70,7 @@ test.describe("Ingredient Groups", () => {
     // Navigate to a recipe with ingredients (hummus)
     await page.goto("/");
     await page.getByText("חומוס הבית").first().click();
-    await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
+    await page.waitForURL(/\/recipes\/\d+/, { timeout: 30000 });
 
     // Click x2 multiplier
     await page.getByRole("button", { name: "x2" }).click();

@@ -3,6 +3,7 @@ import { test, expect } from "@playwright/test";
 test.describe("Enhanced Search", () => {
   test("search by recipe title", async ({ page }) => {
     await page.goto("/");
+    await page.waitForLoadState("networkidle");
 
     await page.getByPlaceholder("חיפוש לפי שם, מרכיב, תגית או הערה...").fill("חומוס");
     await expect(page).toHaveURL(/\?q=/);

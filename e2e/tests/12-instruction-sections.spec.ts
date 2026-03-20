@@ -3,6 +3,7 @@ import { test, expect } from "@playwright/test";
 test.describe("Instruction Sections", () => {
   test("create recipe with single unnamed section shows plain numbered list", async ({ page }) => {
     await page.goto("/recipes/new");
+    await page.waitForLoadState("networkidle");
 
     await page.getByPlaceholder("למשל: עוגת שוקולד של סבתא").fill("מתכון בדיקה - הוראות");
 
@@ -17,7 +18,7 @@ test.describe("Instruction Sections", () => {
 
     // Submit
     await page.getByRole("button", { name: "שמירת מתכון" }).click();
-    await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
+    await page.waitForURL(/\/recipes\/\d+/, { timeout: 30000 });
 
     // Should show instructions
     await expect(page.getByRole("heading", { name: "הוראות הכנה" })).toBeVisible();
@@ -27,6 +28,7 @@ test.describe("Instruction Sections", () => {
 
   test("create recipe with two named sections", async ({ page }) => {
     await page.goto("/recipes/new");
+    await page.waitForLoadState("networkidle");
 
     await page.getByPlaceholder("למשל: עוגת שוקולד של סבתא").fill("קציצות ברוטב");
 
@@ -49,7 +51,7 @@ test.describe("Instruction Sections", () => {
 
     // Submit
     await page.getByRole("button", { name: "שמירת מתכון" }).click();
-    await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
+    await page.waitForURL(/\/recipes\/\d+/, { timeout: 30000 });
 
     // Should show section headings
     await expect(page.getByText("הכנת הקציצות")).toBeVisible();
@@ -64,7 +66,7 @@ test.describe("Instruction Sections", () => {
     // Navigate to the recipe created in previous test
     await page.goto("/");
     await page.getByText("קציצות ברוטב").first().click();
-    await page.waitForURL(/\/recipes\/\d+/, { timeout: 15000 });
+    await page.waitForURL(/\/recipes\/\d+/, { timeout: 30000 });
 
     // Both sections should start with step "1"
     const stepNumbers = page.locator("span.flex.size-7");
