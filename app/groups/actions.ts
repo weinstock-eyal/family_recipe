@@ -86,7 +86,11 @@ export async function createGroupAction(
     return { success: true, data: { id: group.id } };
   } catch (error) {
     console.error("createGroupAction failed:", error);
-    return { success: false, error: "שגיאה ביצירת הקבוצה" };
+    const message =
+      error instanceof Error && error.message.includes("foreign key")
+        ? "המשתמש לא נמצא. נסה להתנתק ולהתחבר מחדש."
+        : "שגיאה ביצירת הקבוצה";
+    return { success: false, error: message };
   }
 }
 
