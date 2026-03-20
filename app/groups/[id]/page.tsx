@@ -5,6 +5,7 @@ import { getInvitationsByGroup } from "@/src/data/invitations";
 import { GroupMemberList } from "@/components/group-member-list";
 import { GroupInviteSection } from "@/components/group-invite-section";
 import { GroupActions } from "@/components/group-actions";
+import { GroupName } from "@/components/group-name";
 
 export default async function GroupDetailPage({
   params,
@@ -41,7 +42,7 @@ export default async function GroupDetailPage({
     <div className="mx-auto max-w-2xl space-y-8">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold">{group.name}</h1>
+          <GroupName groupId={groupId} name={group.name} isAdmin={isAdmin} />
           <p className="text-sm text-muted-foreground">
             {group.members.length} חברים
           </p>
